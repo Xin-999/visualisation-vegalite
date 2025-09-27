@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ASEAN Forest Area (km²), 1990–2022</title>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px}
+    #vis{max-width:1100px}
+  </style>
+</head>
+<body>
+  <h1>ASEAN Forest Area (km²)</h1>
+  <p>Use the slider to change year.</p>
+  <div id="vis"></div>
+
+  <script>
+    // Years present in your CSV header
+    const YEARS = [
+      "1990","1991","1992","1993","1994","1995","1996","1997","1998","1999",
+      "2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
+      "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019",
+      "2020","2021","2022"
+    ];
+    const ASEAN_CODES = ["BRN","KHM","IDN","LAO","MMR","MYS","PHL","SGP","THA","VNM"];
+
+    const spec = {
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      width: 1000,
+      height: 520,
+      projection: {type: "equalEarth"},
+      params: [{
+        name: "Year",
+        value: 1990,
+        bind: {input: "range", min: 1990, max: 2022, step: 1}
+      }],
+      layer: [
+        /* base world */
+        {
+          data: {
+            url: "data/js/ne_110m_admin_0_countries.topojson",
+            format: {type: "topojson", feature: "ne_110m_admin_0_countries"}
+          },
+          transform: [
+            {
+              lookup: "properties.ISO_A3",
+              from: {
+                data: {url: "data/forest_area_asean.csv"},
+                key: "Country Code",
+                fields: ["Country Name"].concat(YEARS)
+              }
+            },
+            {fold: YEARS, as: ["YearStr","ForestArea"]},
+            {calculate: "toNumber(datum.YearStr)", as: "YearNum"},
+            {filter: "datum.YearNum == Year"},
+            // keep values only for ASEAN countries (others render as grey)
+            {calculate: "indexof(" + JSON.stringify(ASEAN_CODES) + ", datum['Country Code']) >= 0 ? datum.ForestArea : null", as: "ASEAN_Value"}
+          ],
+          mark: {type: "geoshape", stroke: "white", strokeWidth: 0.5},
+          encoding: {
+            color: {
+              field: "ASEAN_Value", type: "quantitative",
+              title: "Forest area (km²)", scale: {scheme: "greens"}
+            },
+            tooltip: [
+              {field: "properties.NAME", title: "Country"},
+              {field: "Country Name", title: "ASEAN match"},
+              {field: "ASEAN_Value", type: "quantitative", format: ",.0f", title: "Forest area (km²)"},
+              {field: "YearNum", title: "Year"}
+            ]
+          }
+        },
+
+        /* optional: show ASEAN labels */
+        {
+          data: {url: "data/ASEAN_countries.csv"},
+          transform: [
+            {filter: "indexof(" + JSON.stringify(ASEAN_CODES) + ", datum.country) >= 0"}
+          ],
+          mark: {type: "text", dy: 6, fontSize: 10, fontWeight: "bold"},
+          encoding: {
+            longitude: {field: "longitude", type: "quantitative"},
+            latitude:  {field: "latitude",  type: "quantitative"},
+            text:      {field: "name", type: "nominal"},
+            color:     {value: "#222"}
+          }
+        }
+      ]
+    };
+
+    vegaEmbed("#vis", spec, {actions:false});
+  </script>
+</body>
+</html>
