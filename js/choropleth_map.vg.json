@@ -14,32 +14,25 @@
   ],
 
   "layer": [
-    /* Base world map (light grey) */
     {
       "data": {
-        "url": "data/js/ne_110m_asean.topojson",
+        "url": "https://raw.githubusercontent.com/Xin-999/visualisation-vegalite/refs/heads/main/js/ne_110m_asean.topojson",
         "format": { "type": "topojson", "feature": "ne_110m_asean" }
       },
       "mark": { "type": "geoshape", "fill": "#eee", "stroke": "white", "strokeWidth": 0.5 }
     },
-
-    /* Colored ASEAN layer, driven by your CSV and joined to geometry */
     {
-      "data": { "url": "data/forest_area_asean_long.csv" },
+      "data": { "url": "https://raw.githubusercontent.com/Xin-999/visualisation-vegalite/refs/heads/main/data/forest_area_asean_long.csv" },
       "transform": [
         { "filter": "datum.Year == Year" },
-
-        /* keep only ASEAN rows (by ISO3) */
         {
           "filter": "indexof(['BRN','KHM','IDN','LAO','MMR','MYS','PHL','SGP','THA','VNM'], datum['Country Code']) >= 0"
         },
-
-        /* join geometry from the TopoJSON by ISO-3 country code */
         {
           "lookup": "Country Code",
           "from": {
             "data": {
-              "url": "data/js/ne_110m_asean.topojson",
+              "url": "https://raw.githubusercontent.com/Xin-999/visualisation-vegalite/refs/heads/main/js/ne_110m_asean.topojson",
               "format": { "type": "topojson", "feature": "ne_110m_asean" }
             },
             "key": "properties.ISO_A3",
@@ -49,28 +42,19 @@
       ],
       "mark": { "type": "geoshape", "stroke": "white", "strokeWidth": 0.5 },
       "encoding": {
-        /* geoshape uses the looked-up geojson geometry */
         "shape": { "field": "geometry", "type": "geojson" },
-
-        /* choose what to color by: ForestArea (km²) */
         "color": {
           "field": "ForestArea",
           "type": "quantitative",
           "title": "Forest area (km²)",
           "scale": { "scheme": "greens" }
         },
-
         "tooltip": [
           { "field": "properties.NAME", "title": "Country" },
           { "field": "Year", "type": "ordinal" },
           { "field": "ForestArea", "type": "quantitative", "format": ",.0f", "title": "Forest area (km²)" },
           { "field": "ForestArea_pct", "type": "quantitative", "format": ".2f", "title": "Forest area (% of land)" },
-          {
-            "field": "ForestArea_per_1000sqkm",
-            "type": "quantitative",
-            "format": ".1f",
-            "title": "Forest area per 1,000 km²"
-          }
+          { "field": "ForestArea_per_1000sqkm", "type": "quantitative", "format": ".1f", "title": "per 1,000 km²" }
         ]
       }
     }
