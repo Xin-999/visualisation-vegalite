@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "title": "ASEAN — Forest area (km²) by country, 1990–2022",
+  "title": "ASEAN — Forest area (% of land) by country, 1990–2022",
   "width": 900,
   "height": 520,
   "projection": { "type": "equalEarth" },
@@ -48,9 +48,9 @@
       "encoding": {
         "shape": { "field": "geometry", "type": "geojson" },
         "color": {
-          "field": "ForestArea",
+          "field": "ForestArea_percent",
           "type": "quantitative",
-          "title": "Forest area (km²)",
+          "title": "Forest area (% of land)",
           "scale": { "scheme": "greens" }
         },
         "tooltip": [
