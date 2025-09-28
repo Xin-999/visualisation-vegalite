@@ -3,24 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ASEAN Forest Area (1990-2022)</title>
+  <title>ASEAN Forest Area (1990–2022)</title>
   <link rel="stylesheet" href="css/styles.css">
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
   <style>
-    /* fallback in case styles.css is empty */
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px}
     .row{display:grid;grid-template-columns:1fr;gap:24px;max-width:1100px}
-    @media(min-width:1000px){.row{grid-template-columns:1fr 1fr}}
+    @media (min-width:1000px){.row{grid-template-columns:1fr 1fr}}
     .card{padding:12px;border:1px solid #ddd;border-radius:12px}
     h1{margin:0 0 8px}
     .note{color:#666;font-size:.9rem}
   </style>
 </head>
 <body>
-  <h1>Forest area (km²) — ASEAN, 1990-2022</h1>
-  <p class="note">Data: World Bank (AG.LND.FRST.K2). Move the slider.</p>
+  <h1>Forest area (km²) — ASEAN, 1990–2022</h1>
+  <p class="note">Data: World Bank (AG.LND.FRST.K2). Use the slider.</p>
 
   <div class="row">
     <div class="card">
@@ -34,81 +33,50 @@
   </div>
 
   <script>
-    // Match your CSV headers exactly
-    const YEARS = [
-      "1990","1991","1992","1993","1994","1995","1996","1997","1998","1999",
-      "2000","2001","2002","2003","2004","2005","2006","2007","2008","2009",
-      "2010","2011","2012","2013","2014","2015","2016","2017","2018","2019",
-      "2020","2021","2022"
-    ];
-    const ASEAN_CODES = ["BRN","KHM","IDN","LAO","MMR","MYS","PHL","SGP","THA","VNM"];
-
+    // Shared slider param
     const yearParam = {
       name: "Year",
       value: 1990,
-      bind: {input: "range", min: 1990, max: 2022, step: 1}
+      bind: { input: "range", min: 1990, max: 2022, step: 1 }
     };
 
-    // ---- Choropleth ----
-    const choroplethSpec = {
+    // 1) Embed the choropleth from your external spec file
+    // (this spec already defines the same "Year" param name)
+    vegaEmbed("#choropleth", "choropleth_map.vg.json", { actions: false });
+
+    // 2) Bar chart using the LONG CSV
+    const ASEAN_CODES = ["BRN","KHM","IDN","LAO","MMR","MYS","PHL","SGP","THA","VNM"];
+
+    const barSpec = {
       $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-      width: 520, height: 340,
-      projection: {type: "equalEarth"},
+      width: 520,
+      height: 340,
       params: [yearParam],
-      data: {
-        url: "data/js/ne_110m_admin_0_countries.topojson",
-        format: {type: "topojson", feature: "ne_110m_admin_0_countries"}
-      },
+      data: { url: "data/forest_area_asean_long.csv" },
       transform: [
-        {
-          lookup: "properties.ISO_A3",
-          from: {
-            data: {url: "data/forest_area_asean.csv"},
-            key: "Country Code",
-            fields: ["Country Name"].concat(YEARS)
-          }
-        },
-        {fold: YEARS, as: ["YearStr","ForestArea"]},
-        {calculate: "toNumber(datum.YearStr)", as: "YearNum"},
-        {filter: "datum.YearNum == Year"},
-        {calculate: "indexof(" + JSON.stringify(ASEAN_CODES) + ", datum['Country Code']) >= 0 ? datum.ForestArea : null", as: "ASEAN_Value"}
+        { filter: "indexof(" + JSON.stringify(ASEAN_CODES) + ", datum['Country Code']) >= 0" },
+        { filter: "datum.Year == Year" }
       ],
-      mark: {type: "geoshape", stroke: "white", strokeWidth: 0.5},
+      mark: { type: "bar", tooltip: true },
       encoding: {
-        color: {
-          field: "ASEAN_Value", type: "quantitative",
-          title: "Forest area (km²)", scale: {scheme: "greens"}
+        x: { field: "Country Name", type: "nominal", sort: "-y", title: null },
+        y: {
+          field: "ForestArea",
+          type: "quantitative",
+          title: "Forest area (km²)",
+          axis: { format: ",.0f" }
         },
+        color: { field: "Country Name", type: "nominal", legend: null },
         tooltip: [
-          {field: "properties.NAME", title: "Country"},
-          {field: "ASEAN_Value", type: "quantitative", format: ",.0f", title: "Forest area (km²)"},
-          {field: "YearNum", title: "Year"}
+          { field: "Country Name", title: "Country" },
+          { field: "Year", type: "ordinal" },
+          { field: "ForestArea", type: "quantitative", format: ",.0f", title: "Forest area (km²)" },
+          { field: "ForestArea_pct", type: "quantitative", format: ".2f", title: "% of land" }
         ]
       }
     };
 
-    // ---- Bar chart (ASEAN only) ----
-    const barSpec = {
-      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-      width: 520, height: 340,
-      params: [yearParam],
-      data: {url: "data/forest_area_asean.csv"},
-      transform: [
-        {filter: "indexof(" + JSON.stringify(ASEAN_CODES) + ", datum['Country Code']) >= 0"},
-        {fold: YEARS, as: ["YearStr","ForestArea"]},
-        {calculate: "toNumber(datum.YearStr)", as: "YearNum"},
-        {filter: "datum.YearNum == Year"}
-      ],
-      mark: {type: "bar", tooltip: true},
-      encoding: {
-        x: {field: "Country Name", type: "nominal", sort: "-y", title: null},
-        y: {field: "ForestArea", type: "quantitative", title: "Forest area (km²)", axis: {format: ",.0f"}},
-        color: {field: "Country Name", legend: null}
-      }
-    };
-
-    vegaEmbed("#choropleth", choroplethSpec, {actions:false});
-    vegaEmbed("#barchart",  barSpec,        {actions:false});
+    vegaEmbed("#barchart", barSpec, { actions: false });
   </script>
 </body>
 </html>

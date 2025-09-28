@@ -1,0 +1,80 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": "ASEAN — Forest area (km²) by country, 1990–2022",
+  "width": 900,
+  "height": 520,
+  "projection": { "type": "equalEarth" },
+
+  "params": [
+    {
+      "name": "Year",
+      "value": 1990,
+      "bind": { "input": "range", "min": 1990, "max": 2022, "step": 1 }
+    }
+  ],
+
+  "layer": [
+    /* Base world map (light grey) */
+    {
+      "data": {
+        "url": "data/js/ne_110m_asean.topojson",
+        "format": { "type": "topojson", "feature": "ne_110m_asean" }
+      },
+      "mark": { "type": "geoshape", "fill": "#eee", "stroke": "white", "strokeWidth": 0.5 }
+    },
+
+    /* Colored ASEAN layer, driven by your CSV and joined to geometry */
+    {
+      "data": { "url": "data/forest_area_asean_long.csv" },
+      "transform": [
+        { "filter": "datum.Year == Year" },
+
+        /* keep only ASEAN rows (by ISO3) */
+        {
+          "filter": "indexof(['BRN','KHM','IDN','LAO','MMR','MYS','PHL','SGP','THA','VNM'], datum['Country Code']) >= 0"
+        },
+
+        /* join geometry from the TopoJSON by ISO-3 country code */
+        {
+          "lookup": "Country Code",
+          "from": {
+            "data": {
+              "url": "data/js/ne_110m_asean.topojson",
+              "format": { "type": "topojson", "feature": "ne_110m_asean" }
+            },
+            "key": "properties.ISO_A3",
+            "fields": ["geometry", "properties"]
+          }
+        }
+      ],
+      "mark": { "type": "geoshape", "stroke": "white", "strokeWidth": 0.5 },
+      "encoding": {
+        /* geoshape uses the looked-up geojson geometry */
+        "shape": { "field": "geometry", "type": "geojson" },
+
+        /* choose what to color by: ForestArea (km²) */
+        "color": {
+          "field": "ForestArea",
+          "type": "quantitative",
+          "title": "Forest area (km²)",
+          "scale": { "scheme": "greens" }
+        },
+
+        "tooltip": [
+          { "field": "properties.NAME", "title": "Country" },
+          { "field": "Year", "type": "ordinal" },
+          { "field": "ForestArea", "type": "quantitative", "format": ",.0f", "title": "Forest area (km²)" },
+          { "field": "ForestArea_pct", "type": "quantitative", "format": ".2f", "title": "Forest area (% of land)" },
+          {
+            "field": "ForestArea_per_1000sqkm",
+            "type": "quantitative",
+            "format": ".1f",
+            "title": "Forest area per 1,000 km²"
+          }
+        ]
+      }
+    }
+  ],
+
+  "config": { "view": { "stroke": null } }
+}
