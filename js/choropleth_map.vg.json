@@ -17,7 +17,7 @@
     {
       "data": {
         "url": "https://raw.githubusercontent.com/Xin-999/visualisation-vegalite/refs/heads/main/js/ne_110m_asean.topojson",
-        "format": { "type": "topojson", "feature": "ne_110m_asean" }
+        "format": { "type": "topojson", "feature": "ne_110m_admin_0_countries" }
       },
       "mark": { "type": "geoshape", "fill": "#eee", "stroke": "white", "strokeWidth": 0.5 }
     },
@@ -28,12 +28,16 @@
         {
           "filter": "indexof(['BRN','KHM','IDN','LAO','MMR','MYS','PHL','SGP','THA','VNM'], datum['Country Code']) >= 0"
         },
+
+        { "calculate": "datum['ForestArea'] / datum['Land Area(Sqkm)'] * 100",  "as": "ForestArea_percent" },
+        { "calculate": "datum['ForestArea'] / datum['Land Area(Sqkm)'] * 1000", "as": "ForestArea_per_1000sqkm" },
+
         {
           "lookup": "Country Code",
           "from": {
             "data": {
               "url": "https://raw.githubusercontent.com/Xin-999/visualisation-vegalite/refs/heads/main/js/ne_110m_asean.topojson",
-              "format": { "type": "topojson", "feature": "ne_110m_asean" }
+              "format": { "type": "topojson", "feature": "ne_110m_admin_0_countries" }
             },
             "key": "properties.ISO_A3",
             "fields": ["geometry", "properties"]
