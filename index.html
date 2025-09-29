@@ -7,23 +7,13 @@
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
-  <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px}
-    .wrap{max-width:1100px}
-    #map .vega-bindings{margin-bottom:8px} /* puts slider above chart */
-  </style>
+  <link rel="stylesheet" href="css/styles.css">
+
 </head>
 <body>
   <div class="container">
     <h1>Forest Cover in ASEAN (% of Land Area, 1990–2022)</h1>
-    <p class="note">Data source: World Bank (AG.LND.FRST.K2). Use the slider to change year.</p>
-
-    <!-- Slider above the map -->
-    <div class="slider-wrap">
-      <label for="yearSlider">Year:</label>
-      <input id="yearSlider" type="range" min="1990" max="2022" step="1" value="1990">
-      <span id="yearLabel">1990</span>
-    </div>
+    <p class="note">Data source: World Bank. Use the slider to change year.</p>
 
     <!-- Choropleth container -->
     <div id="choropleth_map"></div>

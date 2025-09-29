@@ -3,7 +3,8 @@
   "title": "Forest Cover as a Percentage of Land Area in ASEAN Countries (1990–2022)",
   "width": 600,
   "height": 520,
-  "projection": { "type": "equalEarth" },
+  "projection": { "type": "equalEarth"},
+
 
   "params": [
     {
@@ -59,12 +60,12 @@
           "scale": {
             "type": "threshold",
             "domain": [30, 45, 65],
-            "range": ["#e8f5e9", "#a5d6a7", "#66bb6a", "#2e7d32"]
+            "range": ["#edf8e9", "#bae4b3", "#74c476", "#238b45"]
           },
           "legend": {
             "orient": "right",
             "offset": 8,
-            "labelExpr": "datum.label || (datum.value < 30 ? '< 30' : datum.value < 45 ? '30–44' : datum.value < 65 ? '45–64' : '≥ 65')"
+            "labelExpr": "datum.value < 30 ? 'Low (<30%)' : datum.value < 45 ? 'Moderate (30–44%)' : datum.value < 65 ? 'High (45–64%)' : 'Very High (≥65%)'"
           }
         },
         "tooltip": [

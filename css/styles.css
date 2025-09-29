@@ -1,8 +1,28 @@
+.container {
+  max-width: 900px;     
+  margin: 0 auto;        /* <-- centers the block */
+  padding: 0 16px;
+}
+
+/* Center headings and note text */
+h1, .note {
+  text-align: center;
+}
+
+/* Center the custom slider row you made */
+.slider-wrap {
+  display: flex;
+  justify-content: center;   /* center horizontally */
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 20px;
+}
+
 #choropleth_map {
-	top:100px;
+	/* top:100px;
 	bottom: 100px; 
 	left: 100px;
-	right: 100px;
+	right: 100px; */
 	/*height: 1000px;
 	width: 800px;*/
 }
@@ -12,4 +32,9 @@
   display: flex;
   justify-content: center;  /* center horizontally */
   margin: 12px 0;           /* add space above and below */
+}
+
+.vega-embed, .vega-embed svg, .vega-embed canvas {
+  display: block;
+  margin: 0 auto;
 }
