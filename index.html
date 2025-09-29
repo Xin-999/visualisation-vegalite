@@ -29,10 +29,12 @@
     <div id="choropleth_map"></div>
   </div>
 
-  <script>
-    // Embed choropleth Vega-Lite spec
-    vegaEmbed("#map", "choropleth_map.vg.json", { actions: false })
-      .catch(console.error);
-  </script>
+  <script type="text/javascript">
+
+  var spec2 = "js/choropleth_map.vg.json";
+  vegaEmbed('#choropleth_map', spec2).then(function(result) {
+    // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
+  }).catch(console.error);
+</script>
 </body>
 </html>
