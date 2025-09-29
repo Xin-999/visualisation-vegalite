@@ -81,7 +81,7 @@
     
     {
   "data": {
-    "url": "https://raw.githubusercontent.com/Xin-999/visualisation-vegalite/refs/heads/main/js/ne_10m_asean.topojson",
+    "url": "https://raw.githubusercontent.com/Xin-999/visualisation-vegalite/refs/heads/main/Part%201/js/ne_10m_asean.topojson",
     "format": { "type": "topojson", "feature": "ne_10m_admin_0_countries" }
   },
   "transform": [
@@ -92,7 +92,7 @@
       "lookup": "properties.ISO_A3",
       "from": {
         "data": {
-          "url": "https://raw.githubusercontent.com/Xin-999/visualisation-vegalite/refs/heads/main/Part%201/data/forest_area_asean_long.csv",
+          "url": "https://raw.githubusercontent.com/Xin-999/visualisation-vegalite/refs/heads/Part%201/main/Part%201/data/forest_area_asean_long.csv",
           "transform": [ { "filter": "datum.Year == Year" } ]   
         },
         "key": "Country Code",
