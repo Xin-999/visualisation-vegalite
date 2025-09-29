@@ -76,7 +76,51 @@
           { "field": "ForestArea_per_1000sqkm", "type": "quantitative", "format": ".1f", "title": "per 1,000 km²" }
         ]
       }
+      
+    },
+    
+    {
+  "data": {
+    "url": "https://raw.githubusercontent.com/Xin-999/visualisation-vegalite/refs/heads/main/js/ne_10m_asean.topojson",
+    "format": { "type": "topojson", "feature": "ne_10m_admin_0_countries" }
+  },
+  "transform": [
+    {
+      "filter": "indexof(['BRN','KHM','IDN','LAO','MMR','MYS','PHL','SGP','THA','VNM'], datum.properties.ISO_A3) >= 0"
+    },
+    {
+      "lookup": "properties.ISO_A3",
+      "from": {
+        "data": {
+          "url": "https://raw.githubusercontent.com/Xin-999/visualisation-vegalite/refs/heads/main/data/forest_area_asean_long.csv",
+          "transform": [ { "filter": "datum.Year == Year" } ]   
+        },
+        "key": "Country Code",
+        "fields": ["ForestArea","Land Area(Sqkm)","Year"]
+      }
+    },
+    { "calculate": "datum['ForestArea'] / datum['Land Area(Sqkm)'] * 100", "as": "ForestArea_percent" }
+  ],
+  "mark": {
+    "type": "text",
+    "font": "serif",
+    "fontSize": 10,
+    "align": "center",
+    "baseline": "middle"
+  },
+  "encoding": {
+    "longitude": { "field": "properties.LABEL_X", "type": "quantitative" },
+    "latitude":  { "field": "properties.LABEL_Y", "type": "quantitative" },
+    "text":      { "field": "properties.NAME" },
+    "color": {
+      "condition": {
+        "test": "isValid(datum.ForestArea_percent) && datum.ForestArea_percent >= 65",
+        "value": "#D3D3D3"   
+      },
+      "value": "#71797E"    
     }
+  }
+}
   ],
 
   "config": { "view": { "stroke": null } }
