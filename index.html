@@ -3,93 +3,52 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ASEAN Forest Area (1990–2022)</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <title>ASEAN Forest Area (% of Land, 1990–2022)</title>
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
   <style>
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px}
-    .row{display:grid;grid-template-columns:1fr;gap:24px;max-width:1100px}
-    @media (min-width:1000px){.row{grid-template-columns:1fr 1fr}}
-    .card{padding:12px;border:1px solid #ddd;border-radius:12px}
-    h1{margin:0 0 8px}
-    .note{color:#666;font-size:.9rem}
+    .container{max-width:800px;margin:auto}
+    h1{margin:0 0 12px;text-align:center}
+    .note{color:#666;font-size:.9rem;text-align:center;margin-bottom:20px}
+    .slider-wrap{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:20px}
+    .slider-wrap label{font-weight:600}
   </style>
 </head>
 <body>
-  <h1>Forest area (km²) — ASEAN, 1990–2022</h1>
-  <p class="note">Data: World Bank (AG.LND.FRST.K2). Use the slider.</p>
+  <div class="container">
+    <h1>Forest Cover in ASEAN (% of Land Area, 1990–2022)</h1>
+    <p class="note">Data source: World Bank (AG.LND.FRST.K2). Use the slider to change year.</p>
 
-  <div class="row">
-    <div class="card">
-      <h3>Choropleth (world basemap, ASEAN values)</h3>
-      <div id="choropleth"></div>
+    <!-- Slider above the map -->
+    <div class="slider-wrap">
+      <label for="yearSlider">Year:</label>
+      <input id="yearSlider" type="range" min="1990" max="2022" step="1" value="1990">
+      <span id="yearLabel">1990</span>
     </div>
-    <div class="card">
-      <h3>Bar chart (ASEAN only)</h3>
-      <div id="barchart"></div>
-    </div>
+
+    <!-- Choropleth container -->
+    <div id="choropleth_map"></div>
   </div>
-<!--  -->
-  
-<div id="choropleth_map"></div>
-
-<script type="text/javascript">
-
-  var spec2 = "js/choropleth_map.vg.json";
-  vegaEmbed('#choropleth_map', spec2).then(function(result) {
-    // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
-  }).catch(console.error);
-</script>
 
   <script>
-    // Shared slider param
-    const yearParam = {
-      name: "Year",
-      value: 1990,
-      bind: { input: "range", min: 1990, max: 2022, step: 1 }
-    };
+    // Embed choropleth Vega-Lite spec
+    vegaEmbed("#choropleth_map", "js/choropleth_map.vg.json", { actions: false }).then(result => {
+      const view = result.view;
+      const slider = document.getElementById("yearSlider");
+      const label = document.getElementById("yearLabel");
 
-    // 1) Embed the choropleth from your external spec file
-    vegaEmbed("#choropleth", "choropleth_map.vg.json", { actions: false }).catch(console.error);
+      // Initialise label with default slider value
+      label.textContent = slider.value;
 
-
-    // 2) Bar chart using the LONG CSV
-    const ASEAN_CODES = ["BRN","KHM","IDN","LAO","MMR","MYS","PHL","SGP","THA","VNM"];
-
-    const barSpec = {
-      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-      width: 520,
-      height: 340,
-      params: [yearParam],
-      data: { url: "data/forest_area_asean_long.csv" },
-      transform: [
-        { filter: "indexof(" + JSON.stringify(ASEAN_CODES) + ", datum['Country Code']) >= 0" },
-        { filter: "datum.Year == Year" },
-        { calculate: "datum['ForestArea'] / datum['Land Area(Sqkm)'] * 100",  as: "ForestArea_percent" },
-        { calculate: "datum['ForestArea'] / datum['Land Area(Sqkm)'] * 1000", as: "ForestArea_per_1000sqkm" }
-      ],
-      mark: { type: "bar", tooltip: true },
-      encoding: {
-        x: { field: "Country Name", type: "nominal", sort: "-y", title: null },
-        y: {
-          field: "ForestArea_percent",
-          type: "quantitative",
-          title: "Forest area (% of land)",
-          axis: { format: ",.0f" }
-        },
-        color: { field: "Country Name", type: "nominal", legend: null },
-        tooltip: [
-          { field: "Country Name", title: "Country" },
-          { field: "Year", type: "ordinal" },
-          { field: "ForestArea", type: "quantitative", format: ",.0f", title: "Forest area (km²)" },
-          { field: "ForestArea_pct", type: "quantitative", format: ".2f", title: "% of land" }
-        ]
-      }
-    };
-
-    vegaEmbed("#barchart", barSpec, { actions: false });
+      // Update Vega param + label when slider moves
+      slider.addEventListener("input", () => {
+        const year = parseInt(slider.value, 10);
+        label.textContent = year;        //  update label text
+        view.signal("Year", year).run(); //  update Vega-Lite signal
+      });
+    }).catch(console.error);
   </script>
 </body>
 </html>
