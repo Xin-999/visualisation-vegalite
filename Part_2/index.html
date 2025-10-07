@@ -1,6 +1,30 @@
 <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ASEAN Forest Area (% of Land, 1990–2022)</title>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <link rel="stylesheet" href="css/styles.css">
 
+</head>
 <body>
-  W10
+  <div class="container">
+    <h1>Forest Cover in ASEAN (% of Land Area, 1990–2022)</h1>
+    <p class="note">Data source: World Bank. Use the slider to change year.</p>
+
+    <!-- Choropleth container -->
+    <div id="choropleth_map"></div>
+  </div>
+
+  <script type="text/javascript">
+
+  var spec2 = "https://raw.githubusercontent.com/Xin-999/visualisation-vegalite/refs/heads/main/Part_1/js/choropleth_map.vg.json";
+  vegaEmbed('#choropleth_map', spec2).then(function(result) {
+    // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
+  }).catch(console.error);
+</script>
 </body>
 </html>
